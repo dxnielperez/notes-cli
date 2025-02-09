@@ -9,9 +9,19 @@ function saveNotes(notes) {
   fs.writeFileSync("notes.json", JSON.stringify(notes, null, 2));
 }
 
+function generateUniqueId(existingIds) {
+  let id;
+  do {
+    id = Math.floor(1000 + Math.random() * 8000);
+  } while (existingIds.includes(id));
+  return id;
+}
+
 function addNote(text) {
   const notes = loadNotes();
-  const newNote = { id: Date.now(), text };
+  const existingIds = notes.map((note) => note.id);
+  const uniqueId = generateUniqueId(existingIds);
+  const newNote = { id: uniqueId, text };
   notes.push(newNote);
   saveNotes(notes);
   console.log("Note added:", newNote);
@@ -19,7 +29,12 @@ function addNote(text) {
 
 function listNotes() {
   const notes = loadNotes();
-  notes.forEach((note) => console.log(`${note.id}: ${note.text}`));
+  if (notes.length === 0) {
+    console.log("No notes found.");
+    return;
+  } else {
+    notes.forEach((note) => console.log(`${note.id}: ${note.text}`));
+  }
 }
 
 function deleteNote(id) {
